@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>リスニングレッスン</title>
+<script>
+var question = new Array();     //問題
+var num, index;                 //問題番号、解答インデックス
+var cnt, timer = null;          //カウンタ、タイマー
+var score, status = "ready";    //スコア、ステータス（ready/select)
+
+//問題データ
+question[0] = ["Good morning.", "Good afternoon.", "good evening."];
+question[1] = ["", "", ""];
+question[2] = ["", "", ""];
+question[3] = ["", "", ""];
+question[4] = ["", "", ""];
+question[5] = ["", "", ""];
+question[6] = ["", "", ""];
+question[7] = ["", "", ""];
+question[8] = ["", "", ""];
+question[9] = ["", "", ""];
+question[10] = ["", "", ""];
+question[11] = ["", "", ""];
+question[12] = ["", "", ""];
+question[13] = ["", "", ""];
+question[14] = ["", "", ""];
+
+function startLesson() {
+    //問題をシャッフル
+    for (var i=question.length-1; i>0; i--) {
+        var j = Math.floor(Math.random()*i);
+        //要素の入れ替え
+        var temp = question[j];
+        question[j] = question[i];
+        question[i] = temp;
+    }
+    //スタート
+    cnt = 0;
+    num = 0;
+    score = 0;
+    status = "ready";
+    
+}
+
+
+
+</script>
+</head>
+<body>
+    
+</body>
+</html>
