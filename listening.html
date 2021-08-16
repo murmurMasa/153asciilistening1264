@@ -11,20 +11,20 @@ var score, status = "ready";    //スコア、ステータス（ready/select)
 
 //問題データ
 question[0] = ["Good morning.", "Good afternoon.", "good evening."];
-question[1] = ["", "", ""];
-question[2] = ["", "", ""];
-question[3] = ["", "", ""];
-question[4] = ["", "", ""];
-question[5] = ["", "", ""];
-question[6] = ["", "", ""];
-question[7] = ["", "", ""];
-question[8] = ["", "", ""];
-question[9] = ["", "", ""];
-question[10] = ["", "", ""];
-question[11] = ["", "", ""];
-question[12] = ["", "", ""];
-question[13] = ["", "", ""];
-question[14] = ["", "", ""];
+question[1] = ["I have a pen.", "I have an apple.", "I have a pineapple."];
+question[2] = ["This is a book.", "That is a book.", "This is a notebook."];
+question[3] = ["There is a lemon.", "Here is a lemon.", "There are two lemons."];
+question[4] = ["I speak English.", "I can speak English.", "I can't speak English."];
+question[5] = ["He studies English.", "She studies English.", "They study English."];
+question[6] = ["I got to Tokyo.", "I went to Kyoto.", "I'll go to Tokyo."];
+question[7] = ["Can I help you?", "May I help you?", "Can you help me?"];
+question[8] = ["How are you?", "How about you?", "Who are you?"];
+question[9] = ["What do you think?", "What do you mean?", "What do you do?"];
+question[10] = ["Where are you from?", "What are you doing?", "What time is it?"];
+question[11] = ["I think so.", "I don't know.", "I hope so."];
+question[12] = ["I like you.", "I don't like you.", "I love you."];
+question[13] = ["Really?", "Exactly.", "I see."];
+question[14] = ["Let's go.", "Let it go.", "Let it be."];
 
 function startLesson() {
     //問題をシャッフル
@@ -40,14 +40,108 @@ function startLesson() {
     num = 0;
     score = 0;
     status = "ready";
-    
+    document.getElementById("score").innerText = score;     //正解数表示エリアと残り秒数表示エリア（138行）を初期化
+    document.getElementById("countDown").innerHTML = "--";
+    if (timer != null) clearInterval(timer);
+    timer = setInterval(countDown, 1000);
 }
 
+function countDown() {
+    //カウントダウン表示
+    var cntText = "--";                                     //残り時間が0より大きいなら秒数、0なら「--」を表示
+    if (cnt > 0) cntText =cnt;
+    document.getElementById("countDown").innerHTML = cntText;
+    cnt--;
+    if (cnt < 0) {                                          //残り時間が0未満の時
+        if (num < 10) {                                     //問題数が10問未満のとき
+            //問題番号を表示
+            document.getElementById("num").innerHTML = num + 1;
+            //正解／不正解メッセージをクリア
+            document.getElementById("message").innerText = "";
+            //問題をセット
+            for (var i=0; i<3; i++) {                       //選択肢を３つ作成
+               var answer = document.getElementById("a_" + i);      //ＩＤ「a_番号」の選択肢表示エリアを取得
+               answer.innerText = question[num][i];                 //選択肢の文章を表示
+               answer.classList.remove("select");                   //「select」クラスを削除
+            }
+            status = "select";
+            index = Math.floor(Math.random() *3);                   //0～2の乱数
+            //英文を発声
+            speech(question[num][index]);
+            //問題番号、カウンタを更新
+            num++;
+            cnt = 5;
+        } else {                   //問題数が10問目の時
+            //終了
+            clearInterval(timer);
+            //評価
+            var message = "Bad!";
+            if (score > 8) {
+                message = "Excellent!";         //正解数に応じたメッセージを作成 
+            } else if (score > 6) {
+                message = "Great!";
+            } else if (score > 4) {
+                message = "Good!";
+            } else if (score > 2) {
+                message = "Poor!";
+            }
+            //評価を発声
+            speech(message);
+            document.getElementById("message").innerText = message;
+        }
+    }
+}
 
+function speech(text) {
+    //発声のキャンセル
+    window.speechSynthesis.cancel();        //発声中の音声を停止
+    //テキスト、言語をセット
+    var utterance = new SpeechSynthesisUtterance();     //スピーチオブジェクトを作成
+    utterance.text = text;                              //発声するテキストを設定
+    utterance.lang = "en-US";                           //言語をアメリカ英語に
+    //発声
+    window.speechSynthesis.speak(utterance);
+}
 
+function checkAnswer(n) {
+    //解答チェック
+    if (status == "select") {
+        status = "ready";
+        document.getElementById("a_" + n).classList.add("select");  //選択した文書に「select」クラスを追加
+        var message = "Wrong!";
+        if (n == index) {
+            score++;
+            message = "Correct!";                                   //間違いならメッセージは「Wrong！」、正解ならメッセージは「Correct!｣
+        }
+        //正解／不正解を発声
+        speech(message);
+        document.getElementById("message").innerText = message;
+        document.getElementById("score").innerText = score;
+    }
+}
 </script>
+<style>
+    #answer {font-size: 20px;}
+    button {
+        font-size: 20px;
+        width: 40px;
+        height: 40px;
+        margin: 5px 10px;
+    }
+    #message {color: #FF0000;}
+    .select {color: #0000FF;}
+</style>
 </head>
 <body>
-    
+    <p>リスニングレッスン</p>
+    <input type="button" value="スタート" onclick="startLesson()">
+    正解数:<span id="score">--</span>/10 残り<span id="countDown">--</span>秒
+<hr>
+Lesson <span id="num">--</span>  <span id="message"></span><br>
+<div id="answer">
+<button onclick="checkAnswer(0)">1</button><span id="a_0">-----</span><br>
+<button onclick="checkAnswer(1)">2</button><span id="a_1">-----</span><br>
+<button onclick="checkAnswer(2)">3</button><span id="a_2">-----</span>
+</div>
 </body>
 </html>
